@@ -63,7 +63,7 @@ SLL::~SLL() {
 	clear();
 }
 
-void SLL::insert(size_t idx, const int& value) {
+void SLL::insert(size_t idx, const ValueType& value) {
 	if (idx > size()) {
 		throw std::out_of_range("at insert(): position > size of list");
 	}
@@ -90,7 +90,7 @@ void SLL::insert(size_t idx, const int& value) {
 	++_size;
 }
 
-void SLL::pushBack(const int& value) {
+void SLL::pushBack(const ValueType& value) {
 	/*if (!_head) {
 		_head = new Node(value);
 	}
@@ -104,7 +104,7 @@ void SLL::pushBack(const int& value) {
 	insert(size(), value);
 }
 
-void SLL::pushFront(const int& value) {
+void SLL::pushFront(const ValueType& value) {
 	insert(0, value);
 }
 
@@ -127,7 +127,6 @@ void SLL::erase(size_t idx) {
 		delete[] tmp;
 	}
 	else {
-		int pos;
 		Node* cur = _head;
 		for (int pos = 0; pos < idx - 1; ++pos) {
 			cur = cur->_next;
@@ -168,7 +167,7 @@ bool SLL::isEmpty() const {
 	return !size();
 }
 
-void SLL::forEach(int (*fn)(int)) {
+void SLL::forEach(ValueType (*fn)(ValueType)) {
 	if (isEmpty()) {
 		return;
 	}
@@ -179,13 +178,13 @@ void SLL::forEach(int (*fn)(int)) {
 	}
 }
 
-SLL SLL::map(int (*fn)(int)) {
+SLL SLL::map(ValueType (*fn)(ValueType)) {
 	SLL tmp(*this);
 	tmp.forEach(fn);
 	return tmp;
 }
 
-void SLL::filter(bool (*fn)(int)) {
+void SLL::filter(bool (*fn)(ValueType)) {
 	if (isEmpty()) {
 		return;
 	}
@@ -202,4 +201,45 @@ void SLL::filter(bool (*fn)(int)) {
 		}
 		++pos;
 	}
+}
+
+SLL::Iterator SLL::begin() const{
+	return SLL::Iterator(_head);
+}
+
+SLL::Iterator SLL::end() const {
+	return SLL::Iterator(nullptr);
+}
+//class Iterator
+SLL::Iterator::Iterator(Node* ptr) : _ptr(ptr) {}
+
+ValueType& SLL::Iterator::operator*() {
+	return _ptr->_data;
+}
+
+ValueType* SLL::Iterator::operator->() {
+	return &(_ptr->_data);
+}
+
+SLL::Iterator& SLL::Iterator::operator++() {
+	_ptr = _ptr->_next;
+	return *this;
+}
+
+SLL::Iterator SLL::Iterator::operator++(int) {
+	Iterator tmp = *this;
+	++(*this);
+	return tmp;
+}
+
+bool SLL::Iterator::operator!=(const Iterator& other) {
+	return _ptr != other._ptr;
+}
+
+bool SLL::Iterator::operator==(const Iterator& other) {
+	return _ptr == other._ptr;
+}
+
+std::ptrdiff_t SLL::Iterator::operator-(const Iterator& other) {
+	return _ptr - other._ptr;
 }

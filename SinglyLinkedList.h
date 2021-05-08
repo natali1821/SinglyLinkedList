@@ -24,9 +24,9 @@ public:
 	public:
 		using iterator_category = std::forward_iterator_tag;
 		using difference_type	= std::ptrdiff_t;
-		using value_type		= ValueType;
-		using pointer			= ValueType*;
-		using reference			= ValueType&;
+		using value_type	= ValueType;
+		using pointer		= ValueType*;
+		using reference		= ValueType&;
 		Iterator(Node* ptr);
 		reference operator*();
 		pointer operator->();

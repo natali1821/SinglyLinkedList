@@ -30,5 +30,10 @@ int main()
 	SLL third = first.map(increment);
 	std::cout << third.size() << std::endl;
 	third.print();
-}
 
+	SLL::Iterator cur(third.begin());
+	SLL::Iterator tmp(second.end());
+	std::cout << *(cur++) << std::endl;
+	std::cout << *(cur) << std::endl;
+	std::cout << *(++cur) << std::endl;
+}

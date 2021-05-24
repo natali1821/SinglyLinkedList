@@ -4,29 +4,29 @@
 #include <exception>
 #include <cstdlib>
 
-using ValueType = int;
-
+template<class T>
 class SLL {
 private:
 	class Node {
 	public:
 		Node* _next;
-		ValueType _data;
-		Node(ValueType data) {
+		T _data;
+		Node(T data) {
 			_data = data;
 			_next = nullptr;
 		}
 	};
 	Node* _head;
 	size_t _size;
+	void forceNodeDelete(Node* node);
 public:
 	class Iterator {
 	public:
 		using iterator_category = std::forward_iterator_tag;
 		using difference_type	= std::ptrdiff_t;
-		using value_type	= ValueType;
-		using pointer		= ValueType*;
-		using reference		= ValueType&;
+		using value_type		= T;
+		using pointer			= T*;
+		using reference			= T&;
 		Iterator(Node* ptr);
 		reference operator*();
 		pointer operator->();
@@ -35,6 +35,7 @@ public:
 		bool operator!=(const Iterator& other);
 		bool operator==(const Iterator& other);
 		difference_type operator-(const Iterator& other);
+		Node* getPtr() const;
 	private:
 		Node* _ptr;
 	};
@@ -43,30 +44,50 @@ public:
 
 	//the rule of five
 	SLL(const SLL& other);
-	SLL(SLL&& other) noexcept;
+	SLL(SLL<T>&& other) noexcept;
 
 	SLL& operator=(const SLL& other);
-	SLL& operator=(SLL&& other) noexcept;
+	SLL& operator=(SLL<T>&& other) noexcept;
 
 	~SLL();
 
-	//methods
-	void insert(size_t idx, const ValueType& value);
-	void pushBack(const ValueType& value);
-	void pushFront(const ValueType& value);
+	const T& at(const size_t pos) const;
+	T& at(const size_t pos);
+	const T& operator[](const size_t pos) const;
+	T& operator[](const size_t pos);
+	Node* getNode(const size_t pos) const;
 
+	size_t getIndex(Node* node);
+
+	//insert
+	void insert(size_t idx, const T& value);
+	void insertAfterNode(Node* node, const T& value);
+	void pushBack(const T& value);
+	void pushFront(const T& value);
+
+	//remove
 	void clear();
-	void erase(size_t idx);
+	void remove(size_t idx);
+	void removeNextNode(Node* node);
 	void popBack();
 	void popFront();
+
+	// search, Î(n)
+	long long int findIndex(const T& value) const;
+	Node* findNode(const T& value) const;
+
+	// reverse
+	void reverse();
+	SLL<T> reverse() const;
+	SLL<T> getReverseList() const;
 
 	size_t size() const;
 	void print();
 	bool isEmpty() const;
 
-	void forEach(ValueType (*fn)(ValueType));
-	SLL map(ValueType (*fn)(ValueType));
-	void filter(bool (*fn)(ValueType));
+	void forEach(T (*fn)(T));
+	SLL<T> map(T (*fn)(T));
+	void filter(bool (*fn)(T));
 
 	Iterator begin() const;
 	Iterator end() const;

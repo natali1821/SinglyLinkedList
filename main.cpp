@@ -1,5 +1,5 @@
 #include <iostream>
-#include "SinglyLinkedList.h"
+#include "templates.cpp"
 
 int increment(int a) {
 	return ++a;
@@ -11,29 +11,40 @@ bool evenNumber(int a) {
 
 int main()
 {
-	SLL first;
-	first = SLL();
+	SLL<int> first;
+	first = SLL<int>();
 	first.insert(0, 1);
 	first.insert(1, 3);
 	first.insert(1, 2);
 	first.insert(3, 4);
 	first.pushBack(5);
 	first.pushFront(0);
-	std::cout << first.size() << std::endl;
+	std::cout << "size of first list - " << first.size() << std::endl;
 	first.print();
 
-	SLL second(first);
+	SLL<int> second(first);
 	second.filter(evenNumber);
-	std::cout << second.size() << std::endl;
+	std::cout << "size of second list - " << second.size() << std::endl;
 	second.print();
 
-	SLL third = first.map(increment);
-	std::cout << third.size() << std::endl;
+	SLL<int> third = first.map(increment);
+	std::cout << "size of third list - " << third.size() << std::endl;
 	third.print();
 
-	SLL::Iterator cur(third.begin());
-	SLL::Iterator tmp(second.end());
+	SLL<int>::Iterator cur(third.begin());
+	SLL<int>::Iterator tmp(second.end());
 	std::cout << *(cur++) << std::endl;
 	std::cout << *(cur) << std::endl;
 	std::cout << *(++cur) << std::endl;
+
+	SLL<int>::Iterator h(first.begin());
+	first.insertAfterNode(h.getPtr(), 9);
+	first.removeNextNode(h.getPtr());
+
+	std::cout << h.getPtr() << std::endl;
+	std::cout << first.getNode(0) << std::endl;
+
+	first.reverse();
+	std::cout << "size of first list - " << first.size() << std::endl;
+	first.print();
 }

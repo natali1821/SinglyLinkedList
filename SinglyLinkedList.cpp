@@ -1,16 +1,18 @@
 #include "SinglyLinkedList.h"
 
-SLL::SLL() {
+template<class T>
+SLL<T>::SLL() {
 	_head = nullptr;
 	_size = 0;
 }
 
-SLL::SLL(const SLL& other) {
+template<class T>
+SLL<T>::SLL(const SLL& other) {
 	if (other._head) {
 		Node* tmp = other._head;
 		Node* cur = new Node(tmp->_data);
 		_head = cur;
-		while(tmp->_next) {
+		while (tmp->_next) {
 			tmp = tmp->_next;
 			cur->_next = new Node(tmp->_data);
 			cur = cur->_next;
@@ -23,12 +25,14 @@ SLL::SLL(const SLL& other) {
 	}
 }
 
-SLL::SLL(SLL&& other) noexcept{
+template<class T>
+SLL<T>::SLL(SLL<T>&& other) noexcept{
 	_size = std::exchange(other._size, 0);
 	_head = std::exchange(other._head, nullptr);
 }
 
-SLL& SLL::operator=(const SLL& other){
+template<class T>
+SLL<T>& SLL<T>::operator=(const SLL& other){
 	if (other.isEmpty()) {
 		clear();
 		_head = nullptr;
@@ -41,7 +45,7 @@ SLL& SLL::operator=(const SLL& other){
 		Node* tmp = other._head;
 		Node* cur = new Node(tmp->_data);
 		_head = cur;
-		while(tmp->_next) {
+		while (tmp->_next) {
 			tmp = tmp->_next;
 			cur->_next = new Node(tmp->_data);
 			cur = cur->_next;
@@ -50,7 +54,8 @@ SLL& SLL::operator=(const SLL& other){
 	return *this;
 }
 
-SLL& SLL::operator=(SLL&& other) noexcept{
+template<class T>
+SLL<T>& SLL<T>::operator=(SLL<T>&& other) noexcept{
 	if (this != &other) {
 		clear();
 		_size = std::exchange(other._size, 0);
@@ -59,11 +64,73 @@ SLL& SLL::operator=(SLL&& other) noexcept{
 	return *this;
 }
 
-SLL::~SLL() {
+template<class T>
+SLL<T>::~SLL() {
 	clear();
 }
 
-void SLL::insert(size_t idx, const ValueType& value) {
+template<class T>
+const T& SLL<T>::at(const size_t pos) const {
+	if (pos >= size()) {
+		throw std::out_of_range("at at(): position >= size of list");
+	}
+	Node* cur = _head;
+	for (size_t i = 0; i < pos; ++i) {
+		cur = cur->_next;
+	}
+	return cur->_data;
+}
+
+template<class T>
+T& SLL<T>::at(const size_t pos) {
+	if (pos >= size()) {
+		throw std::out_of_range("at at(): position >= size of list");
+	}
+	Node* cur = _head;
+	for (size_t i = 0; i < pos; ++i) {
+		cur = cur->_next;
+	}
+	return cur->_data;
+}
+
+template<class T>
+const T& SLL<T>::operator[](const size_t pos) const{
+	return at(pos);
+}
+
+template<class T>
+T& SLL<T>::operator[](const size_t pos) {
+	return at(pos);
+}
+
+template<class T>
+class SLL<T>::Node* SLL<T>::getNode(const size_t pos) const{
+	if (pos >= size()) {
+		throw std::out_of_range("at getNode() : position >+ size of list");
+	}
+	Node* cur = _head;
+	for (size_t i = 0; i < pos; ++i) {
+		cur = cur->_next;
+	}
+	return cur;
+}
+
+template<class T>
+size_t SLL<T>::getIndex(Node* node) {
+	Node* cur = _head;
+	size_t pos = 0;
+	while (cur->_next) {
+		if (cur == node) {
+			break;
+		}
+		++pos;
+		cur = cur->_next;
+	}
+	return pos;
+}
+
+template<class T>
+void SLL<T>::insert(size_t idx, const T& value) {
 	if (idx > size()) {
 		throw std::out_of_range("at insert(): position > size of list");
 	}
@@ -78,9 +145,9 @@ void SLL::insert(size_t idx, const ValueType& value) {
 		_head->_next = tmp;
 	}
 	else {
-		int pos;
+		size_t pos;
 		Node* cur = _head;
-		for(pos = 0; pos < idx - 1; ++pos) {
+		for (pos = 0; pos < idx - 1; ++pos) {
 			cur = cur->_next;
 		}
 		Node* tmp = new Node(value);
@@ -90,11 +157,18 @@ void SLL::insert(size_t idx, const ValueType& value) {
 	++_size;
 }
 
-void SLL::pushBack(const ValueType& value) {
+template<class T>
+void SLL<T>::insertAfterNode(Node* node, const T& value){
+	size_t i = getIndex(node);
+	insert(i + 1, value);
+}
+
+template<class T>
+void SLL<T>::pushBack(const T& value) {
 	/*if (!_head) {
 		_head = new Node(value);
 	}
-	else{
+	else {
 		Node* cur = _head;
 		while(cur->_next) {
 			cur = cur->_next;
@@ -104,17 +178,20 @@ void SLL::pushBack(const ValueType& value) {
 	insert(size(), value);
 }
 
-void SLL::pushFront(const ValueType& value) {
+template<class T>
+void SLL<T>::pushFront(const T& value) {
 	insert(0, value);
 }
 
-void SLL::clear(){
-	while(_size) {
+template<class T>
+void SLL<T>::clear(){
+	while (_size) {
 		popBack();
 	}
 }
 
-void SLL::erase(size_t idx) {
+template<class T>
+void SLL<T>::remove(size_t idx) {
 	if (isEmpty()) {
 		return;
 	}
@@ -128,7 +205,7 @@ void SLL::erase(size_t idx) {
 	}
 	else {
 		Node* cur = _head;
-		for (int pos = 0; pos < idx - 1; ++pos) {
+		for (size_t pos = 0; pos < idx - 1; ++pos) {
 			cur = cur->_next;
 		}
 		Node* tmp = cur->_next;
@@ -138,20 +215,83 @@ void SLL::erase(size_t idx) {
 	--_size;
 }
 
-void SLL::popBack() {
-	erase(size() - 1);
+template<class T>
+void SLL<T>::removeNextNode(Node* node) {
+	size_t i = getIndex(node);
+	remove(i + 1);
 }
 
-void SLL::popFront() {
-	erase(0);
+template<class T>
+void SLL<T>::popBack() {
+	remove(size() - 1);
 }
 
-size_t SLL::size() const{
+template<class T>
+void SLL<T>::popFront() {
+	remove(0);
+}
+
+template<class T>
+long long int SLL<T>::findIndex(const T& value) const {
+	Node* cur = _head;
+	long long int i = 0;
+	while (cur->_next) {
+		if (cur->_data == value) {
+			return i;
+		}
+		cur = cur->_next;
+		++i;
+	}
+	return -1;
+}
+
+template<class T>
+class SLL<T>::Node* SLL<T>::findNode(const T& value) const {
+	auto it = begin();
+	while (it != end()) {
+		if (*it == value) {
+			return it.getPtr();
+		}
+		++it;
+	}
+	return nullptr;
+}
+
+template<class T>
+void SLL<T>::reverse() {
+	Node* prev = nullptr;
+	Node* cur = _head;
+	while (cur) {
+		Node* tmp = cur->_next; //save next element on list
+		cur->_next = prev; // link current element with previos
+		prev = cur;
+		cur = tmp; //move to next element on list
+	}
+	_head = prev;
+}
+
+template<class T>
+SLL<T> SLL<T>::reverse() const {
+	SLL<T> tmp = *this;
+	tmp.reverse();
+	return tmp;
+}
+
+template<class T>
+SLL<T> SLL<T>::getReverseList() const {
+	SLL<T> tmp = *this;
+	tmp.reverse();
+	return tmp;
+}
+
+template<class T>
+size_t SLL<T>::size() const{
 	return _size;
 }
 
-void SLL::print() {
-	if(!_head) {
+template<class T>
+void SLL<T>::print() {
+	if (!_head) {
 		std::cout << "nullptr" << std::endl;
 	}
 	else {
@@ -163,83 +303,56 @@ void SLL::print() {
 	}
 }
 
-bool SLL::isEmpty() const {
+template<class T>
+bool SLL<T>::isEmpty() const {
 	return !size();
 }
 
-void SLL::forEach(ValueType (*fn)(ValueType)) {
+template<class T>
+void SLL<T>::forEach(T (*fn)(T)) {
 	if (isEmpty()) {
 		return;
 	}
 	Node* cur = _head;
-	while(cur) {
+	while (cur) {
 		cur->_data = fn(cur->_data);
 		cur = cur->_next;
 	}
 }
 
-SLL SLL::map(ValueType (*fn)(ValueType)) {
-	SLL tmp(*this);
+template<class T>
+SLL<T> SLL<T>::map(T (*fn)(T)) {
+	SLL<T> tmp(*this);
 	tmp.forEach(fn);
 	return tmp;
 }
 
-void SLL::filter(bool (*fn)(ValueType)) {
+template<class T>
+void SLL<T>::filter(bool (*fn)(T)) {
 	if (isEmpty()) {
 		return;
 	}
 	int pos = 0;
 	Node* cur = _head;
-	while(cur){
+	while (cur){
 		if (fn(cur->_data)) {
 			cur = cur->_next;
 		}
 		else {
 			cur = cur->_next;
-			erase(pos);
+			remove(pos);
 			--pos;
 		}
 		++pos;
 	}
 }
 
-SLL::Iterator SLL::begin() const{
+template<class T>
+class SLL<T>::Iterator SLL<T>::begin() const{
 	return SLL::Iterator(_head);
 }
 
-SLL::Iterator SLL::end() const {
+template<class T>
+class SLL<T>::Iterator SLL<T>::end() const {
 	return SLL::Iterator(nullptr);
-}
-//class Iterator
-SLL::Iterator::Iterator(Node* ptr) : _ptr(ptr) {}
-
-ValueType& SLL::Iterator::operator*() {
-	return _ptr->_data;
-}
-
-ValueType* SLL::Iterator::operator->() {
-	return &(_ptr->_data);
-}
-
-SLL::Iterator& SLL::Iterator::operator++() {
-	_ptr = _ptr->_next;
-	return *this;
-}
-
-SLL::Iterator SLL::Iterator::operator++(int) {
-	Iterator tmp = *this;
-	++(*this);
-	return tmp;
-}
-
-bool SLL::Iterator::operator!=(const Iterator& other) {
-	return _ptr != other._ptr;
-}
-
-bool SLL::Iterator::operator==(const Iterator& other) {
-	return _ptr == other._ptr;
-}
-
-std::ptrdiff_t SLL::Iterator::operator-(const Iterator& other) {
-	return _ptr - other._ptr;
 }
